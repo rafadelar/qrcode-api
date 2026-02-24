@@ -1,0 +1,13 @@
+{
+  "name": "qrcode-api",
+  "version": "1.0.0",
+  "description": "API para geração de QR Codes a partir de VCARD ou texto",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "qrcode": "^1.5.4"
+  }
+}
