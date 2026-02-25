@@ -14,7 +14,7 @@
 
 ## 🎯 O que é isso?
 
-Uma API REST minimalista que recebe **texto ou VCARD** e retorna um **QR Code como imagem PNG** (ou SVG). Criada para resolver um problema real: gerar QR Codes dentro de workflows n8n **sem depender de APIs externas gratuitas** que têm rate limits e instabilidade.
+Uma API REST minimalista que recebe **texto ou VCARD** e retorna um **QR Code como imagem PNG** (ou SVG). Criada para resolver um problema real: gerar QR Codes, principalmente, dentro de workflows n8n **sem depender de APIs externas gratuitas** que têm rate limits e instabilidade.
 
 ### Por que esse projeto existe
 
