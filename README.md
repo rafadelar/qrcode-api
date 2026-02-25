@@ -18,8 +18,8 @@ Uma API REST minimalista que recebe **texto ou VCARD** e retorna um **QR Code co
 
 | Problema | Solução |
 |----------|---------|
-| APIs gratuitas de QR Code (`api.qrserver.com`) têm rate limits severos e caem em disparos em massa | API própria sem limite — a capacidade depende apenas do seu servidor |
-| O Task Runner do n8n v2.x isola o Code node e impede instalar pacotes npm como `qrcode` diretamente | Serviço externo isolado — zero risco para o n8n |
+| APIs gratuitas de QR Code têm rate limits severos e caem em disparos em massa | API própria sem limite — a capacidade depende apenas do seu servidor |
+| O Task Runner do n8n v2.x isola o Code node e impede instalar pacotes npm diretamente | Serviço externo isolado — zero risco para o n8n |
 | Gerar QR Code com VCARD via URL query param corrompe os dados (quebras de linha, caracteres especiais) | Recebe VCARD no body JSON via POST — sem corrupção |
 
 ---
@@ -165,8 +165,9 @@ Ideal para quem já roda **n8n no Easypanel**. Ambos ficam na mesma rede Docker 
 2. No Easypanel, entre no **mesmo projeto** onde o n8n está
 3. Clique em **+ Service → App**
 4. Nome do serviço: `qrcode-api`
-5. Source: **GitHub** → selecione o repositório
-6. Build: **Dockerfile**
+5. Source: **GitHub** → selecione o próprietário/repositório
+6. Branch: Main
+6. Build: / **Dockerfile**
 7. Port: **3000**
 8. Clique em **Deploy**
 
@@ -325,44 +326,7 @@ qrcode-api/
 | `getaddrinfo ENOTFOUND qrcode-api` | n8n não encontra o serviço na rede | Verifique se ambos estão no **mesmo projeto** do Easypanel |
 | `400 Bad Request` | Body malformado ou vazio | Verifique `Content-Type: application/json` e formato do body |
 | QR Code gerado mas conteúdo vazio | VCARD enviado via URL query param (GET) com caracteres especiais | Use **POST** com body JSON |
-| QR Code mostra só "PARTICIPANTE" | Dados do participante perdidos no fluxo n8n entre nodes | Use `$('Loop Over Items').item.json` para acessar dados originais |
 | PNG corrompido no envio | Response Format não está como "File" no HTTP Request | Configure **Options → Response → Response Format: File** |
-
----
-
-## 🤔 Contexto: Por que não gerar QR Code direto no n8n?
-
-A partir do **n8n v2.0**, o [Task Runner](https://docs.n8n.io/hosting/configuration/task-runners/) foi habilitado por padrão. Ele isola a execução do Code node em um processo separado com restrições de segurança. Isso significa que:
-
-- Pacotes npm instalados no container principal **não são visíveis** para o Task Runner
-- A instalação via `npm install` dentro do diretório do n8n falha com `EUNSUPPORTEDPROTOCOL` (o n8n usa pnpm internamente)
-- Mesmo instalando no diretório exato do Task Runner, o `require-resolver.js` pode não encontrar o módulo
-- O modo externo (sidecar) adiciona complexidade com container `n8nio/runners` separado
-
-**A solução mais segura e estável é um microserviço externo** — este projeto.
-
----
-
-## 🤝 Contribuindo
-
-Contribuições são bem-vindas! Para contribuir:
-
-1. Faça fork do repositório
-2. Crie uma branch (`git checkout -b feature/minha-feature`)
-3. Commit suas mudanças (`git commit -m 'Adiciona minha feature'`)
-4. Push para a branch (`git push origin feature/minha-feature`)
-5. Abra um Pull Request
-
-### Ideias para contribuição
-
-- [ ] Adicionar autenticação via header token
-- [ ] Suporte a leitura/decodificação de QR Codes
-- [ ] Cache de QR Codes gerados (Redis/memória)
-- [ ] Suporte a outros formatos de código de barras
-- [ ] Dashboard com métricas de uso
-- [ ] Rate limiting configurável
-
----
 
 ## 📝 Licença
 
