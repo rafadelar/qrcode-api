@@ -1,22 +1,73 @@
 const express = require('express');
+const crypto = require('crypto');
 const QRCode = require('qrcode');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ============================================================
+// AUTENTICAÇÃO
+// ============================================================
+// Se API_TOKEN estiver definido, toda requisição (exceto /health)
+// precisa enviar o token no header "Authorization: Bearer <token>"
+// Se API_TOKEN NÃO estiver definido, a API funciona sem auth (modo aberto)
+// ============================================================
+const API_TOKEN = process.env.API_TOKEN || null;
+
+function authMiddleware(req, res, next) {
+  // Se não tem token configurado, permite tudo (modo aberto)
+  if (!API_TOKEN) return next();
+
+  const authHeader = req.headers['authorization'];
+
+  if (!authHeader) {
+    return res.status(401).json({ 
+      error: 'Token não fornecido. Envie o header: Authorization: Bearer <token>' 
+    });
+  }
+
+  // Aceita formato "Bearer <token>" ou apenas "<token>"
+  const token = authHeader.startsWith('Bearer ') 
+    ? authHeader.slice(7) 
+    : authHeader;
+
+  // Comparação segura contra timing attacks
+  const tokenBuffer = Buffer.from(token);
+  const apiTokenBuffer = Buffer.from(API_TOKEN);
+
+  if (tokenBuffer.length !== apiTokenBuffer.length || 
+      !crypto.timingSafeEqual(tokenBuffer, apiTokenBuffer)) {
+    return res.status(403).json({ error: 'Token inválido.' });
+  }
+
+  next();
+}
+
 // Parse JSON and text bodies
 app.use(express.json({ limit: '1mb' }));
 app.use(express.text({ limit: '1mb', type: 'text/*' }));
 
-// Health check
+// Health check (sempre público, sem auth)
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', service: 'qrcode-api', timestamp: new Date().toISOString() });
+  res.json({ 
+    status: 'ok', 
+    service: 'qrcode-api', 
+    version: '1.1.0',
+    auth: API_TOKEN ? 'enabled' : 'disabled',
+    timestamp: new Date().toISOString() 
+  });
 });
+
+// Aplica autenticação em TODOS os endpoints abaixo
+app.use(authMiddleware);
 
 /**
  * POST /qrcode
  * 
  * Aceita VCARD (ou qualquer texto) e retorna um QR Code PNG.
+ * 
+ * Headers (se auth habilitada):
+ *   Authorization: Bearer <token>
  * 
  * Body pode ser:
  *   - JSON:  { "data": "BEGIN:VCARD\n..." }
@@ -56,7 +107,6 @@ app.post('/qrcode', async (req, res) => {
     const format = req.query.format || 'png';
 
     if (format === 'svg') {
-      // Retornar SVG
       const svg = await QRCode.toString(content, {
         type: 'svg',
         width,
@@ -121,7 +171,8 @@ app.get('/qrcode', async (req, res) => {
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`QR Code API rodando na porta ${PORT}`);
+  console.log(`QR Code API v1.1.0 rodando na porta ${PORT}`);
+  console.log(`Autenticação: ${API_TOKEN ? 'ATIVADA' : 'DESATIVADA (modo aberto)'}`);
   console.log(`Health: http://localhost:${PORT}/health`);
   console.log(`Gerar:  POST http://localhost:${PORT}/qrcode`);
 });
