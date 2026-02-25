@@ -7,7 +7,8 @@
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)](#-deploy-com-docker)
 [![n8n Compatible](https://img.shields.io/badge/n8n-Compatible-EA4B71?logo=n8n&logoColor=white)](#-integração-com-n8n)
 [![Easypanel](https://img.shields.io/badge/Easypanel-Ready-7C3AED)](#opção-a--easypanel-recomendado)
-💙🚀 UTIC, em todo lugar!
+
+###### 💙🚀 UTIC, em todo lugar!
 ---
 
 ## 🎯 O que é isso?
