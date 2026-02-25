@@ -415,7 +415,6 @@ qrcode-api/
 ├── package.json     # Dependências (express + qrcode)
 ├── Dockerfile       # Imagem Docker otimizada (node:20-alpine)
 ├── LICENSE          # Licença MIT
-├── .gitignore       # Arquivos ignorados pelo Git
 └── README.md        # Esta documentação
 ```
 
